@@ -1,22 +1,168 @@
 html {
-  font-size: 14px;
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-  margin-bottom: 60px;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f8ff;
+    color: #02074c;
+    margin-bottom: 60px;
+}
+
+/* Stylowanie nag³ówka */
+.header {
+    text-align: center;
+    justify-content: center;
+    color: rgb(6, 36, 229);
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: rgba(37, 182, 184, 0.5);
+    border-bottom: 2px solid #080540;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Stylowanie sekcji */
+.section {
+    text-align: center;
+    justify-content: center;
+    width: 90%;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #080540;
+    background-color: rgba(37, 182, 184, 0.5);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+    .section h2 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: #083b72;
+    }
+
+/* Formularz */
+.form_group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+    .form_group label {
+        flex: 1;
+        font-weight: bold;
+        color: #24024c;
+    }
+
+.field_input {
+    flex: 2;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.7);
+    box-sizing: border-box;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    button:active {
+        background-color: #003f8c;
+    }
+
+/* Stopka */
+.footer {
+    text-align: center;
+    padding: 20px;
+    background-color: rgba(37, 182, 184, 0.5);
+    border-top: 1px solid #080540;
+    margin-top: 20px;
+    border-radius: 8px 8px 0 0;
+}
+
+    .footer a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+/* Stylowanie dla elementów grid */
+.results_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    background-color: rgba(49, 180, 228, 0.5);
+    padding: 20px;
+    border: 2px solid #24024c;
+    border-radius: 8px;
+}
+
+.results_item {
+    padding: 15px;
+    border: 1px solid #24024c;
+    border-radius: 8px;
+    background-color: white;
+    color: #24024c;
+    text-align: center;
+    font-size: 1rem;
+}
+
+    .results_item:hover {
+        background-color: rgba(49, 180, 228, 0.3);
+    }
+
+/* Stylowanie linków */
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+/* Stylowanie obrazów */
+.event-details-image {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid #24024c;
+}
+
+/* Responsywnoœæ */
+@media (max-width: 768px) {
+    .section {
+        width: 95%;
+    }
+
+    .results_grid {
+        grid-template-columns: 1fr;
+    }
 }
