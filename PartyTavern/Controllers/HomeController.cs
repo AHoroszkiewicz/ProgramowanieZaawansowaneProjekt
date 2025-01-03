@@ -32,16 +32,6 @@ namespace PartyTavern.Controllers
             return View();
         }
 
-        // Nowa akcja dla wyœwietlania gier - tylko dla administratora
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Games()
-        {
-            var games = await _context.Games.ToListAsync(); // Pobranie gier z bazy danych
-            return View(games); // Przekazanie listy gier do widoku
-        }
-
-        
-
         public IActionResult Privacy()
         {
             return View();
