@@ -1,11 +1,21 @@
 ﻿@{
     ViewData["Title"] = "PartyTavern - Twoja karczma pełna przygód";
+    var isAdmin = ViewData["IsAdmin"] as bool? ?? false;
 }
 
 <div class="content-container">
     <div class="textbox">
         <h1>Witamy w PartyTavern – Twojej karczmie pełnej przygód!</h1>
         <p>Witaj, poszukiwaczu przygód! W PartyTavern znajdziesz towarzyszy, z którymi wyruszysz na swoje najważniejsze questy, niezależnie od gry, którą preferujesz.</p>
+
+        @if (isAdmin)
+        {
+            <p class="role-info">Masz uprawnienia Administratora. Możesz zarządzać treściami i użytkownikami strony.</p>
+        }
+        else
+        {
+            <p class="role-info">Jesteś graczem! Jeśli chciałbyś dołączyć do grona Administratorów daj nam znać!</p>
+        }
     </div>
 
     <div class="textbox">
@@ -19,7 +29,6 @@
             <li><strong>Znajdź swoją grę</strong> – Przeglądaj dostępne gry i wyszukuj drużyny, które akurat poszukują graczy.</li>
             <li><strong>Dołącz lub stwórz drużynę</strong> – Zobacz, kto szuka towarzyszy, lub stwórz własny post, aby inni gracze mogli do Ciebie dołączyć.</li>
             <li><strong>Rejestracja</strong> – Zarejestruj się, aby uzyskać dostęp do pełnych funkcji strony.</li>
-            <li><strong>System ról i klas</strong> – Użyj naszego systemu, aby lepiej dopasować się do innych graczy.</li>
         </ul>
     </div>
 
@@ -37,4 +46,3 @@
         <p>Przekrocz próg naszej karczmy, zarejestruj się i zostań częścią społeczności, w której każdy gracz znajdzie swoją drużynę.</p>
     </div>
 </div>
-s

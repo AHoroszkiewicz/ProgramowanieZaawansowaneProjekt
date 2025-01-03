@@ -48,7 +48,7 @@ using (var scope = app.Services.CreateScope())
     var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
 
     // Definicja ról
-    var roles = new[] { "Admin", "Player" };
+    var roles = new[] { "Admin"};
 
     foreach (var role in roles)
     {
@@ -58,17 +58,15 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    // Opcjonalnie: Tworzenie konta administratora
-    var adminEmail = "admin@example.com";
-    var adminPassword = "Admin123!";
+    // Przypisanie istniej¹cego u¿ytkownika do roli Admin
+    var adminEmail = "maciej.idzikowski7@gmail.com"; // Zast¹p adresem e-mail istniej¹cego administratora
 
-    if (await userManager.FindByEmailAsync(adminEmail) == null)
+    var existingAdmin = await userManager.FindByEmailAsync(adminEmail);
+    if (existingAdmin != null)
     {
-        var adminUser = new IdentityUser { UserName = adminEmail, Email = adminEmail };
-        var result = await userManager.CreateAsync(adminUser, adminPassword);
-        if (result.Succeeded)
+        if (!await userManager.IsInRoleAsync(existingAdmin, "Admin"))
         {
-            await userManager.AddToRoleAsync(adminUser, "Admin");
+            await userManager.AddToRoleAsync(existingAdmin, "Admin");
         }
     }
 }

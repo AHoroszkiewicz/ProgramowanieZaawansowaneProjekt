@@ -166,3 +166,10 @@ a {
         grid-template-columns: 1fr;
     }
 }
+
+.role-info {
+    font-weight: bold;
+    color: #007bff;
+    margin-top: 10px;
+}
+
