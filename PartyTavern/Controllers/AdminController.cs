@@ -29,7 +29,7 @@ namespace PartyTavern.Controllers
             {
                 _context.Games.Add(game);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("AddGame", new { success = true });
+                return RedirectToAction("Games");
             }
             return View(game);
         }
