@@ -1,7 +1,10 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using PartyTavern.Data;
 using PartyTavern.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PartyTavern.Controllers
 {
@@ -9,11 +12,13 @@ namespace PartyTavern.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly ApplicationDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger, UserManager<IdentityUser> userManager)
+        public HomeController(ILogger<HomeController> logger, UserManager<IdentityUser> userManager, ApplicationDbContext context)
         {
             _logger = logger;
             _userManager = userManager;
+            _context = context;
         }
 
         public async Task<IActionResult> Index()
@@ -26,6 +31,16 @@ namespace PartyTavern.Controllers
 
             return View();
         }
+
+        // Nowa akcja dla wyœwietlania gier - tylko dla administratora
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Games()
+        {
+            var games = await _context.Games.ToListAsync(); // Pobranie gier z bazy danych
+            return View(games); // Przekazanie listy gier do widoku
+        }
+
+        
 
         public IActionResult Privacy()
         {

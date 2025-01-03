@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using PartyTavern.Models;
 
 namespace PartyTavern.Data
 {
@@ -9,5 +10,8 @@ namespace PartyTavern.Data
             : base(options)
         {
         }
+
+        // Dodanie DbSet dla modelu Game
+        public DbSet<Game> Games { get; set; }
     }
 }
