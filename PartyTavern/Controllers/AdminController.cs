@@ -98,9 +98,8 @@ namespace PartyTavern.Controllers
 
         [HttpPost, ActionName("DeleteGame")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteGame(int id, Game game)
         {
-            var game = await _context.Games.FindAsync(id); // Pobranie gry z bazy danych
             if (game == null)
             {
                 return NotFound(); // Jeśli gry nie ma, zwróć błąd 404
