@@ -1,11 +1,22 @@
 ﻿@model IEnumerable<PartyTavern.Models.TeamPost>
 
 @{
-    ViewData["Title"] = "Drużyny";
+    bool showExpired = ViewData["ShowExpired"] as bool? ?? false;
     var currentUserId = ViewData["CurrentUserId"] as string; // Pobieramy ID użytkownika
+    ViewData["Title"] = "Drużyny";
 }
-
 <h1>@ViewData["Title"]</h1>
+
+<div class="mb-3">
+    @if (showExpired)
+    {
+        <a asp-action="Index" asp-route-showExpired="false" class="btn btn-primary">Pokaż aktywne posty</a>
+    }
+    else
+    {
+        <a asp-action="Index" asp-route-showExpired="true" class="btn btn-secondary">Pokaż przedawnione posty</a>
+    }
+</div>
 
 <table class="table">
     <thead>
@@ -14,7 +25,7 @@
             <th>Rozmiar drużyny</th>
             <th>Opis</th>
             <th>Termin gry</th>
-            <th>Członkowie drużyny</th> <!-- Dodana kolumna do wyświetlania członków -->
+            <th>Członkowie drużyny</th>
         </tr>
     </thead>
     <tbody>
@@ -26,35 +37,26 @@
                 <td>@post.Description</td>
                 <td>@post.NeededBy.ToString("g")</td>
                 <td>
-                    @* Wyświetlanie członków drużyny (użytkowników powiązanych z TeamMember) *@
                     @foreach (var tm in post.TeamMembers)
                     {
-                        <div>
-                            @tm.User.UserName <!-- Wyświetlamy tylko nazwę użytkownika -->
-                        </div>
+                        <div>@tm.User.UserName</div>
                     }
 
-                    @* Dodaj przycisk Dołącz tylko jeśli drużyna nie jest pełna i użytkownik nie jest już w drużynie *@
-                    @if (post.CurrentTeamSize < post.TeamSize && !post.TeamMembers.Any(tm => tm.UserId == currentUserId))
+                    @if (!showExpired && post.CurrentTeamSize < post.TeamSize && post.NeededBy >= DateTime.Now && !post.TeamMembers.Any(tm => tm.UserId == currentUserId))
                     {
                         <form method="post" asp-action="Join" asp-route-postId="@post.Id">
                             <button type="submit" class="btn btn-primary">Dołącz</button>
                         </form>
                     }
-                    else
+                    else if (post.NeededBy < DateTime.Now)
                     {
-                        <span class="text-muted">Drużyna pełna, lub już dołączono</span>
+                        <span class="text-muted">Drużyna przedawniona</span>
                     }
 
-                    @* Dodaj przycisk Edytuj tylko dla twórcy posta lub administratora *@
+
                     @if (post.UserId == currentUserId || User.IsInRole("Admin"))
                     {
                         <a href="@Url.Action("Edit", "TeamPosts", new { id = post.Id })" class="btn btn-secondary">Edytuj</a>
-                    }
-
-                    @* Dodaj przycisk Usuń tylko dla twórcy posta lub administratora *@
-                    @if (post.UserId == currentUserId || User.IsInRole("Admin"))
-                    {
                         <a href="@Url.Action("Delete", "TeamPosts", new { id = post.Id })" class="btn btn-danger">Usuń</a>
                     }
                 </td>
