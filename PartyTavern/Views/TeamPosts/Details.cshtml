@@ -1,0 +1,54 @@
+﻿@model PartyTavern.Models.TeamPost
+
+@{
+    ViewData["Title"] = "Szczegóły drużyny";
+    var currentUserId = ViewData["CurrentUserId"]?.ToString();
+}
+
+<h1>@Model.Game.Name</h1>
+
+<p>
+    <strong>Rozmiar drużyny:</strong> @Model.CurrentTeamSize/@Model.TeamSize<br />
+    <strong>Opis:</strong> @Model.Description<br />
+    <strong>Termin gry:</strong> @Model.NeededBy.ToString("g")<br />
+    <strong>Członkowie drużyny:</strong>
+</p>
+
+<ul>
+    @foreach (var member in Model.TeamMembers)
+    {
+        <li>@member.User.UserName</li>
+    }
+</ul>
+
+<div class="mt-4">
+    @if (Model.NeededBy < DateTime.Now)
+    {
+        <span class="text-danger">Drużyna przedawniona</span>
+    }
+    else
+    {
+        @if (Model.CurrentTeamSize < Model.TeamSize && !Model.TeamMembers.Any(tm => tm.UserId == currentUserId))
+        {
+            <form method="post" asp-action="Join" asp-route-postId="@Model.Id">
+                <button type="submit" class="btn btn-primary">Dołącz</button>
+            </form>
+        }
+    }
+
+    @if (Model.UserId == currentUserId || User.IsInRole("Admin"))
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-secondary">Edytuj</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Usuń</a>
+    }
+
+    @if (Model.TeamMembers.Any(tm => tm.UserId == currentUserId) && Model.UserId != currentUserId)
+    {
+        <form method="post" asp-action="Leave" asp-route-postId="@Model.Id" class="mt-3">
+            <button type="submit" class="btn btn-danger">Opuść drużynę</button>
+        </form>
+    }
+
+    <a href="@ViewData["ReturnUrl"]" class="btn btn-secondary">Powrót</a>
+
+</div>

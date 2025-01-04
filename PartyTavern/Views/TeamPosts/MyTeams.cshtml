@@ -1,0 +1,78 @@
+﻿@model IEnumerable<PartyTavern.Models.TeamPost>
+
+@{
+    bool showExpired = ViewData["ShowExpired"] as bool? ?? false;
+    @if (showExpired)
+    {
+        ViewData["Title"] = "Przedawnione drużyny";
+    }
+    else
+    {
+        ViewData["Title"] = "Aktywne drużyny";
+    }
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="mb-3">
+    @if (showExpired)
+    {
+        <a asp-action="MyTeams" asp-route-showExpired="false" class="btn btn-primary">Pokaż aktywne drużyny</a>
+    }
+    else
+    {
+        <a asp-action="MyTeams" asp-route-showExpired="true" class="btn btn-secondary">Pokaż przedawnione drużyny</a>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    @if (showExpired)
+    {
+        <p>Nie byłeś członkiem żadnej drużyny.</p>
+    }
+    else
+    {
+        <p>Brak aktywnych drużyn.</p>
+    }
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Gra</th>
+                <th>Rozmiar drużyny</th>
+                <th>Opis</th>
+                <th>Termin gry</th>
+                <th>Opcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var post in Model)
+            {
+                <tr>
+                    <td>@post.Game.Name</td>
+                    <td>@post.CurrentTeamSize/@post.TeamSize</td>
+                    <td>@post.Description</td>
+                    <td>@post.NeededBy.ToString("g")</td>
+                    <td>
+                        @if (post.NeededBy < DateTime.Now)
+                        {
+                            <span class="text-muted">Drużyna przedawniona</span>
+                        }
+                        else
+                        {
+                            <span class="text-success">Aktywna drużyna</span>
+                        }
+
+                        <a asp-action="Details"
+                           asp-route-id="@post.Id"
+                           asp-route-returnUrl="@Url.Action("MyTeams", "TeamPosts", new { showExpired = showExpired })"
+                           class="btn btn-primary">Szczegóły</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
