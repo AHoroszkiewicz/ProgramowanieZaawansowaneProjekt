@@ -2,19 +2,26 @@
 
 @{
     bool showExpired = ViewData["ShowExpired"] as bool? ?? false;
-    var currentUserId = ViewData["CurrentUserId"] as string; // Pobieramy ID użytkownika
-    ViewData["Title"] = "Drużyny";
+    @if (showExpired)
+    {
+        ViewData["Title"] = "Przedawnione drużyny";
+    }
+    else
+    {
+        ViewData["Title"] = "Aktywne drużyny";
+    }
 }
+
 <h1>@ViewData["Title"]</h1>
 
 <div class="mb-3">
     @if (showExpired)
     {
-        <a asp-action="Index" asp-route-showExpired="false" class="btn btn-primary">Pokaż aktywne posty</a>
+        <a asp-action="Index" asp-route-showExpired="false" class="btn btn-primary">Pokaż aktywne drużyny</a>
     }
     else
     {
-        <a asp-action="Index" asp-route-showExpired="true" class="btn btn-secondary">Pokaż przedawnione posty</a>
+        <a asp-action="Index" asp-route-showExpired="true" class="btn btn-secondary">Pokaż przedawnione drużyny</a>
     }
 </div>
 
@@ -25,7 +32,7 @@
             <th>Rozmiar drużyny</th>
             <th>Opis</th>
             <th>Termin gry</th>
-            <th>Członkowie drużyny</th>
+            <th>Opcje</th>
         </tr>
     </thead>
     <tbody>
@@ -37,28 +44,7 @@
                 <td>@post.Description</td>
                 <td>@post.NeededBy.ToString("g")</td>
                 <td>
-                    @foreach (var tm in post.TeamMembers)
-                    {
-                        <div>@tm.User.UserName</div>
-                    }
-
-                    @if (!showExpired && post.CurrentTeamSize < post.TeamSize && post.NeededBy >= DateTime.Now && !post.TeamMembers.Any(tm => tm.UserId == currentUserId))
-                    {
-                        <form method="post" asp-action="Join" asp-route-postId="@post.Id">
-                            <button type="submit" class="btn btn-primary">Dołącz</button>
-                        </form>
-                    }
-                    else if (post.NeededBy < DateTime.Now)
-                    {
-                        <span class="text-muted">Drużyna przedawniona</span>
-                    }
-
-
-                    @if (post.UserId == currentUserId || User.IsInRole("Admin"))
-                    {
-                        <a href="@Url.Action("Edit", "TeamPosts", new { id = post.Id })" class="btn btn-secondary">Edytuj</a>
-                        <a href="@Url.Action("Delete", "TeamPosts", new { id = post.Id })" class="btn btn-danger">Usuń</a>
-                    }
+                    <a asp-action="Details" asp-route-id="@post.Id" class="btn btn-primary">Szczegóły</a>
                 </td>
             </tr>
         }

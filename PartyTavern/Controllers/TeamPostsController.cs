@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PartyTavern.Data;
 using PartyTavern.Models;
+using System.Security.Claims;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 public class TeamPostsController : Controller
 {
@@ -91,6 +93,7 @@ public class TeamPostsController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Join(int postId)
     {
         var teamPost = await _context.TeamPosts
@@ -141,6 +144,62 @@ public class TeamPostsController : Controller
         await _context.SaveChangesAsync();
 
         return RedirectToAction("Index");
+    }
+
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> Leave(int postId)
+    {
+        var currentUserId = _userManager.GetUserId(User);
+
+        var post = await _context.TeamPosts
+            .Include(p => p.TeamMembers)
+            .FirstOrDefaultAsync(p => p.Id == postId);
+
+        if (post == null)
+        {
+            return NotFound();
+        }
+
+        // Sprawdzamy, czy użytkownik jest twórcą drużyny
+        if (post.UserId == currentUserId)
+        {
+            TempData["Error"] = "Twórca drużyny nie może jej opuścić.";
+            return RedirectToAction("Details", new { id = postId });
+        }
+
+        var teamMember = post.TeamMembers.FirstOrDefault(tm => tm.UserId == currentUserId);
+        if (teamMember != null)
+        {
+            _context.TeamMembers.Remove(teamMember);
+            post.CurrentTeamSize--;
+            await _context.SaveChangesAsync();
+
+            TempData["Message"] = "Pomyślnie opuściłeś drużynę.";
+        }
+        else
+        {
+            TempData["Error"] = "Nie jesteś członkiem tej drużyny.";
+        }
+
+        return RedirectToAction("Details", new { id = postId });
+    }
+
+    public async Task<IActionResult> Details(int id, string returnUrl = null)
+    {
+        var post = await _context.TeamPosts
+            .Include(p => p.Game)
+            .Include(p => p.TeamMembers).ThenInclude(tm => tm.User)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        if (post == null)
+        {
+            return NotFound();
+        }
+
+        ViewData["CurrentUserId"] = _userManager.GetUserId(User);
+        ViewData["ReturnUrl"] = returnUrl ?? Url.Action("Index", "TeamPosts");
+        return View(post);
     }
 
 
@@ -260,5 +319,33 @@ public class TeamPostsController : Controller
     {
         return _context.TeamPosts.Any(e => e.Id == id);
     }
+
+    [Authorize]
+    public async Task<IActionResult> MyTeams(bool showExpired = false)
+    {
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        IQueryable<TeamPost> teamPostsQuery = _context.TeamPosts
+            .Where(p => p.TeamMembers.Any(tm => tm.UserId == currentUserId));
+
+        if (!showExpired)
+        {
+            teamPostsQuery = teamPostsQuery.Where(p => p.NeededBy >= DateTime.Now); // Pokaż tylko aktywne drużyny
+        }
+        else
+        {
+            teamPostsQuery = teamPostsQuery.Where(p => p.NeededBy < DateTime.Now); // Pokaż tylko przedawnione drużyny
+        }
+
+        var teamPosts = await teamPostsQuery
+            .Include(p => p.Game)
+            .Include(p => p.TeamMembers).ThenInclude(tm => tm.User)
+            .ToListAsync();
+
+        ViewData["ShowExpired"] = showExpired; // Ustawiamy wartość dla widoku
+
+        return View(teamPosts);
+    }
+
 
 }
