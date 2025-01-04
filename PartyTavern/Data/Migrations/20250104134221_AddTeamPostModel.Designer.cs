@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PartyTavern.Data;
 
@@ -11,9 +12,11 @@ using PartyTavern.Data;
 namespace PartyTavern.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250104134221_AddTeamPostModel")]
+    partial class AddTeamPostModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -249,30 +252,6 @@ namespace PartyTavern.Data.Migrations
                     b.ToTable("Games");
                 });
 
-            modelBuilder.Entity("PartyTavern.Models.TeamMember", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("TeamPostId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TeamPostId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("TeamMembers");
-                });
-
             modelBuilder.Entity("PartyTavern.Models.TeamPost", b =>
                 {
                     b.Property<int>("Id")
@@ -284,9 +263,6 @@ namespace PartyTavern.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("CurrentTeamSize")
-                        .HasColumnType("int");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -294,9 +270,6 @@ namespace PartyTavern.Data.Migrations
 
                     b.Property<int>("GameId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("NeededBy")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("TeamSize")
                         .HasColumnType("int");
@@ -363,25 +336,6 @@ namespace PartyTavern.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PartyTavern.Models.TeamMember", b =>
-                {
-                    b.HasOne("PartyTavern.Models.TeamPost", "TeamPost")
-                        .WithMany("TeamMembers")
-                        .HasForeignKey("TeamPostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("TeamPost");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("PartyTavern.Models.TeamPost", b =>
                 {
                     b.HasOne("PartyTavern.Models.Game", "Game")
@@ -391,11 +345,6 @@ namespace PartyTavern.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Game");
-                });
-
-            modelBuilder.Entity("PartyTavern.Models.TeamPost", b =>
-                {
-                    b.Navigation("TeamMembers");
                 });
 #pragma warning restore 612, 618
         }

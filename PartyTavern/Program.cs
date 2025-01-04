@@ -59,7 +59,7 @@ using (var scope = app.Services.CreateScope())
     }
 
     // Przypisanie istniej¹cego u¿ytkownika do roli Admin
-    var adminEmail = "maciej.idzikowski7@gmail.com"; // Zast¹p adresem e-mail istniej¹cego administratora
+    var adminEmail = "a@b.c"; // Zast¹p adresem e-mail istniej¹cego administratora
 
     var existingAdmin = await userManager.FindByEmailAsync(adminEmail);
     if (existingAdmin != null)

@@ -13,5 +13,21 @@ namespace PartyTavern.Data
 
         // Dodanie DbSet dla modelu Game
         public DbSet<Game> Games { get; set; }
+        //Dodanie DbSet dla modelu TeamPost
+        public DbSet<TeamPost> TeamPosts { get; set; }
+        //Dodanie DbSet dla modelu TeamMember
+        public DbSet<TeamMember> TeamMembers { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<TeamPost>()
+                .HasOne(tp => tp.Game)
+                .WithMany()
+                .HasForeignKey(tp => tp.GameId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+
     }
 }
