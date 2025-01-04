@@ -22,6 +22,10 @@ namespace PartyTavern.Models
         [StringLength(500, ErrorMessage = "Opis nie może być dłuższy niż 500 znaków.")]
         public string Description { get; set; } = string.Empty;
 
+        [Required]
+        [DataType(DataType.DateTime)]
+        [Display(Name = "Termin gry")]
+        [FutureDate(ErrorMessage = "Data gry nie może być wcześniejsza niż obecna.")]
         public DateTime NeededBy { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
