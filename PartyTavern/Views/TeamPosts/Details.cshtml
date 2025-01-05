@@ -51,4 +51,50 @@
 
     <a href="@ViewData["ReturnUrl"]" class="btn btn-secondary">Powrót</a>
 
+    <h3>Komentarze</h3>
+
+    @if (Model.NeededBy < DateTime.Now)
+    {
+        <p class="text-danger">Nie można dodawać komentarzy do przedawnionych drużyn</p>
+    }
+    else
+    {
+        @if (User.Identity.IsAuthenticated)
+        {
+            <form method="post" asp-action="AddComment" asp-route-postId="@Model.Id">
+                <div class="form-group">
+                    <textarea name="content" class="form-control" rows="3" placeholder="Dodaj komentarz..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Dodaj komentarz</button>
+            </form>
+        }
+
+        @foreach (var comment in Model.Comments.OrderBy(c => c.CreatedAt))
+        {
+            <div class="comment">
+                <p>
+                    <strong>@comment.User.UserName</strong> <em>@comment.CreatedAt.ToString("g")</em>
+                    @if (comment.wasEdited)
+                    {
+                        <em>(edytowany)</em>
+                    }
+                </p>
+                <p>@comment.Content</p>
+
+                @if (comment.UserId == ViewData["CurrentUserId"]?.ToString())
+                {
+                    <a asp-action="EditComment" asp-route-commentId="@comment.Id" class="btn btn-secondary btn-sm">Edytuj</a>
+                }
+
+                @if (comment.UserId == ViewData["CurrentUserId"]?.ToString() || User.IsInRole("Admin"))
+                {
+                    <form method="post" asp-action="DeleteComment" asp-route-commentId="@comment.Id" asp-route-postId="@Model.Id" class="d-inline">
+                        <button type="submit" class="btn btn-danger btn-sm">Usuń</button>
+                    </form>
+                }
+            </div>
+            <hr />
+        }
+    }
+
 </div>
