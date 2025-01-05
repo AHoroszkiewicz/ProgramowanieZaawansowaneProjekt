@@ -59,16 +59,30 @@ using (var scope = app.Services.CreateScope())
     }
 
     // Przypisanie istniej¹cego u¿ytkownika do roli Admin
-    var adminEmail = "a@b.c"; // Zast¹p adresem e-mail istniej¹cego administratora
+    var adminEmail = "admin@admin.admin"; // Zast¹p adresem e-mail istniej¹cego administratora
+    var adminPassword = "Admin123!"; // Zast¹p has³em istniej¹cego administratora
 
     var existingAdmin = await userManager.FindByEmailAsync(adminEmail);
-    if (existingAdmin != null)
+    if (existingAdmin == null)
     {
+        var newAdmin = new IdentityUser
+        {
+            UserName = adminEmail,
+            Email = adminEmail,
+            EmailConfirmed = true // Mo¿esz zmieniæ, jeœli weryfikacja e-mail jest wymagana
+        };
+
+        var result = await userManager.CreateAsync(newAdmin, adminPassword);
+
+        if (result.Succeeded)
+        {
+            existingAdmin = newAdmin;
+        }
+    }
         if (!await userManager.IsInRoleAsync(existingAdmin, "Admin"))
         {
             await userManager.AddToRoleAsync(existingAdmin, "Admin");
         }
-    }
 }
 
 app.Run();
