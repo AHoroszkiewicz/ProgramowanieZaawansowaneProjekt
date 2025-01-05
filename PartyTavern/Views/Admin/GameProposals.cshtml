@@ -12,7 +12,6 @@
             <th>Nazwa gry</th>
             <th>Gatunek</th>
             <th>Opis</th>
-            <th>Użytkownik</th>
             <th>Akcje</th>
         </tr>
     </thead>
@@ -23,7 +22,6 @@
                 <td>@proposal.Name</td>
                 <td>@proposal.Genre</td>
                 <td>@proposal.Description</td>
-                <td>@proposal.SubmittedByUser?.UserName</td>
                 <td>
                     <a asp-action="ApproveProposal" asp-route-id="@proposal.Id" class="btn btn-success">Zatwierdź</a>
                     <a asp-action="RejectProposal" asp-route-id="@proposal.Id" class="btn btn-danger">Odrzuć</a>

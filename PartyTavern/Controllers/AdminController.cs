@@ -114,7 +114,6 @@ namespace PartyTavern.Controllers
         public async Task<IActionResult> GameProposals()
         {
             var proposals = await _context.GameProposals
-                .Include(p => p.SubmittedByUser)
                 .ToListAsync(); // Pobranie propozycji z bazy danych
             return View(proposals); // Przekazanie propozycji do widoku
         }
