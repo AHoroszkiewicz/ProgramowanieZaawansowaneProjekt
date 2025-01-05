@@ -23,3 +23,8 @@ Opcje edytowania/usuwania/dołączania do drużyny oraz komentowania są dostęp
     - Administrator może zobaczyć propozycje w widoku “Propozycje gier”.
 
 
+
+## Dokumentacja
+
+[Dokumentacja](https://github.com/AHoroszkiewicz/ProgramowanieZaawansowaneProjekt/blob/main/PartyTavern-dokumentacja.pdf)
+
