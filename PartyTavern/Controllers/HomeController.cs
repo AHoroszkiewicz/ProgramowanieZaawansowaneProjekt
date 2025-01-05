@@ -42,5 +42,32 @@ namespace PartyTavern.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+        public IActionResult CreateProposal()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateProposal(GameProposal proposal)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                proposal.SubmittedByUserId = user.Id;
+
+                _context.GameProposals.Add(proposal);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("ProposalSubmitted");
+            }
+
+            return View(proposal);
+        }
+
+        // Akcja potwierdzaj¹ca zg³oszenie propozycji
+        public IActionResult ProposalSubmitted()
+        {
+            return View();
+        }
     }
 }

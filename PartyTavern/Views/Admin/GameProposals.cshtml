@@ -1,0 +1,34 @@
+﻿@model IEnumerable<PartyTavern.Models.GameProposal>
+
+@{
+    ViewData["Title"] = "Propozycje gier";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nazwa gry</th>
+            <th>Gatunek</th>
+            <th>Opis</th>
+            <th>Użytkownik</th>
+            <th>Akcje</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var proposal in Model)
+        {
+            <tr>
+                <td>@proposal.Name</td>
+                <td>@proposal.Genre</td>
+                <td>@proposal.Description</td>
+                <td>@proposal.SubmittedByUser?.UserName</td>
+                <td>
+                    <a asp-action="ApproveProposal" asp-route-id="@proposal.Id" class="btn btn-success">Zatwierdź</a>
+                    <a asp-action="RejectProposal" asp-route-id="@proposal.Id" class="btn btn-danger">Odrzuć</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

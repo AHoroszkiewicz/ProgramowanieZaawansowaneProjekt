@@ -110,5 +110,53 @@ namespace PartyTavern.Controllers
             return RedirectToAction("Games"); // Przekierowanie na stronę z grami
         }
 
+        // Wyświetlanie propozycji gier
+        public async Task<IActionResult> GameProposals()
+        {
+            var proposals = await _context.GameProposals
+                .Include(p => p.SubmittedByUser)
+                .ToListAsync(); // Pobranie propozycji z bazy danych
+            return View(proposals); // Przekazanie propozycji do widoku
+        }
+
+        // Zatwierdzanie propozycji
+        public async Task<IActionResult> ApproveProposal(int id)
+        {
+            var proposal = await _context.GameProposals.FindAsync(id); // Pobranie propozycji
+            if (proposal == null)
+            {
+                return NotFound(); // Jeśli propozycji nie ma, zwróć błąd 404
+            }
+
+            // Tworzenie gry na podstawie propozycji
+            var game = new Game
+            {
+                Name = proposal.Name,
+                Genre = proposal.Genre,
+                Description = proposal.Description
+            };
+
+            _context.Games.Add(game);
+            _context.GameProposals.Remove(proposal); // Usunięcie propozycji po zatwierdzeniu
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("GameProposals"); // Przekierowanie na listę propozycji
+        }
+
+        // Odrzucanie propozycji
+        public async Task<IActionResult> RejectProposal(int id)
+        {
+            var proposal = await _context.GameProposals.FindAsync(id); // Pobranie propozycji
+            if (proposal == null)
+            {
+                return NotFound(); // Jeśli propozycji nie ma, zwróć błąd 404
+            }
+
+            _context.GameProposals.Remove(proposal); // Usunięcie propozycji
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("GameProposals"); // Przekierowanie na listę propozycji
+        }
+
     }
 }

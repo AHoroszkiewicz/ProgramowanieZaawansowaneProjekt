@@ -28,6 +28,9 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="TeamPosts" asp-action="MyTeams">Moje Drużyny</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="CreateProposal">Dodaj propozycję gry!!</a>
+                        </li>
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
