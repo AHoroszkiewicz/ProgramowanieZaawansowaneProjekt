@@ -40,10 +40,11 @@ public class TeamPostsController : Controller
             // Pobierz aktywne posty
             query = _context.TeamPosts
                             .Include(p => p.Game)
-                            .Include(p => p.TeamMembers)
+                            .Include(p => p.TeamMembers) 
                             .ThenInclude(tm => tm.User)
                             .Where(p => p.NeededBy >= DateTime.Now); // Posty w przyszłości
         }
+
 
         var posts = await query.ToListAsync();
 
