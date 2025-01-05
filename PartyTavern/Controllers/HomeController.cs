@@ -52,12 +52,8 @@ namespace PartyTavern.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.GetUserAsync(User);
-                proposal.SubmittedByUserId = user.Id;
-
                 _context.GameProposals.Add(proposal);
                 await _context.SaveChangesAsync();
-
                 return RedirectToAction("ProposalSubmitted");
             }
 
