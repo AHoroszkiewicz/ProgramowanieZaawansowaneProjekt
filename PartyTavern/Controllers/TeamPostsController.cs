@@ -19,6 +19,41 @@ public class TeamPostsController : Controller
         _userManager = userManager;
     }
 
+    // GET: /TeamPosts/Index
+    public async Task<IActionResult> Index(bool showExpired = false)
+    {
+        var userId = _userManager.GetUserId(User); // Uzyskaj UserId aktualnie zalogowanego użytkownika
+
+        IQueryable<TeamPost> query;
+
+        if (showExpired)
+        {
+            // Pobierz posty z przeszłości
+            query = _context.TeamPosts
+                            .Include(p => p.Game)
+                            .Include(p => p.TeamMembers)
+                            .ThenInclude(tm => tm.User)
+                            .Where(p => p.NeededBy < DateTime.Now); // Posty przedawnione
+        }
+        else
+        {
+            // Pobierz aktywne posty
+            query = _context.TeamPosts
+                            .Include(p => p.Game)
+                            .Include(p => p.TeamMembers)
+                            .ThenInclude(tm => tm.User)
+                            .Where(p => p.NeededBy >= DateTime.Now); // Posty w przyszłości
+        }
+
+        var posts = await query.ToListAsync();
+
+        // Przekazujemy ID użytkownika i czy pokazujemy przedawnione posty
+        ViewData["CurrentUserId"] = userId;
+        ViewData["ShowExpired"] = showExpired;
+
+        return View(posts);
+    }
+
     // GET: /TeamPosts/Create
     public IActionResult Create()
     {
@@ -55,41 +90,6 @@ public class TeamPostsController : Controller
 
         ViewBag.Games = _context.Games.ToList();
         return View(post);
-    }
-
-    // GET: /TeamPosts/Index
-    public async Task<IActionResult> Index(bool showExpired = false)
-    {
-        var userId = _userManager.GetUserId(User); // Uzyskaj UserId aktualnie zalogowanego użytkownika
-
-        IQueryable<TeamPost> query;
-
-        if (showExpired)
-        {
-            // Pobierz posty z przeszłości
-            query = _context.TeamPosts
-                            .Include(p => p.Game)
-                            .Include(p => p.TeamMembers)
-                            .ThenInclude(tm => tm.User)
-                            .Where(p => p.NeededBy < DateTime.Now); // Posty przedawnione
-        }
-        else
-        {
-            // Pobierz aktywne posty
-            query = _context.TeamPosts
-                            .Include(p => p.Game)
-                            .Include(p => p.TeamMembers)
-                            .ThenInclude(tm => tm.User)
-                            .Where(p => p.NeededBy >= DateTime.Now); // Posty w przyszłości
-        }
-
-        var posts = await query.ToListAsync();
-
-        // Przekazujemy ID użytkownika i czy pokazujemy przedawnione posty
-        ViewData["CurrentUserId"] = userId;
-        ViewData["ShowExpired"] = showExpired;
-
-        return View(posts);
     }
 
     [HttpPost]
@@ -190,6 +190,7 @@ public class TeamPostsController : Controller
         var post = await _context.TeamPosts
             .Include(p => p.Game)
             .Include(p => p.TeamMembers).ThenInclude(tm => tm.User)
+            .Include(p => p.Comments).ThenInclude(c => c.User)
             .FirstOrDefaultAsync(p => p.Id == id);
 
         if (post == null)
@@ -201,7 +202,6 @@ public class TeamPostsController : Controller
         ViewData["ReturnUrl"] = returnUrl ?? Url.Action("Index", "TeamPosts");
         return View(post);
     }
-
 
     public async Task<IActionResult> Edit(int id)
     {
@@ -269,8 +269,6 @@ public class TeamPostsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-
-
     // GET: /TeamPosts/Delete/{id}
     public async Task<IActionResult> Delete(int id)
     {
@@ -315,11 +313,6 @@ public class TeamPostsController : Controller
         return RedirectToAction("Index");
     }
 
-    private bool TeamPostExists(int id)
-    {
-        return _context.TeamPosts.Any(e => e.Id == id);
-    }
-
     [Authorize]
     public async Task<IActionResult> MyTeams(bool showExpired = false)
     {
@@ -345,6 +338,141 @@ public class TeamPostsController : Controller
         ViewData["ShowExpired"] = showExpired; // Ustawiamy wartość dla widoku
 
         return View(teamPosts);
+    }
+
+    // Akcja do dodawania komentarza
+    [HttpPost]
+    [Authorize]
+    [ValidateAntiForgeryToken]
+    public IActionResult AddComment(int postId, string content)
+    {
+        var post = _context.TeamPosts.Find(postId);
+
+        if (post == null)
+        {
+            return NotFound();
+        }
+
+        if (post.NeededBy < DateTime.Now)
+        {
+            TempData["ErrorMessage"] = "Nie można dodawać komentarzy do przedawnionych postów.";
+            return RedirectToAction("Details", new { id = postId });
+        }
+
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            TempData["ErrorMessage"] = "Komentarz nie może być pusty.";
+            return RedirectToAction("Details", new { id = postId });
+        }
+
+        var currentUserId = _userManager.GetUserId(User);
+
+        var comment = new Comment
+        {
+            Content = content,
+            CreatedAt = DateTime.Now,
+            UserId = currentUserId,
+            PostId = postId
+        };
+
+        _context.Comments.Add(comment);
+        _context.SaveChanges();
+
+        return RedirectToAction("Details", new { id = postId });
+    }
+
+
+    [HttpPost]
+    [Authorize]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteComment(int commentId, int postId)
+    {
+        var comment = await _context.Comments
+            .Include(c => c.User)
+            .FirstOrDefaultAsync(c => c.Id == commentId);
+
+        if (comment == null)
+        {
+            return NotFound();
+        }
+
+        var currentUserId = _userManager.GetUserId(User);
+
+        // Sprawdź, czy użytkownik jest właścicielem komentarza lub adminem
+        if (comment.UserId != currentUserId && !User.IsInRole("Admin"))
+        {
+            return Forbid();
+        }
+
+        _context.Comments.Remove(comment);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("Details", new { id = postId });
+    }
+
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> EditComment(int commentId)
+    {
+        var comment = await _context.Comments
+            .Include(c => c.User)
+            .FirstOrDefaultAsync(c => c.Id == commentId);
+
+        if (comment == null)
+        {
+            return NotFound();
+        }
+
+        var currentUserId = _userManager.GetUserId(User);
+
+        // Sprawdź, czy użytkownik jest właścicielem komentarza
+        if (comment.UserId != currentUserId)
+        {
+            return Forbid();
+        }
+
+        return View(comment);
+    }
+
+    [HttpPost]
+    [Authorize]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditComment(int commentId, string content)
+    {
+        var comment = await _context.Comments.FindAsync(commentId);
+
+        if (comment == null)
+        {
+            return NotFound();
+        }
+
+        var currentUserId = _userManager.GetUserId(User);
+
+        // Sprawdź, czy użytkownik jest właścicielem komentarza
+        if (comment.UserId != currentUserId)
+        {
+            return Forbid();
+        }
+
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            ModelState.AddModelError("", "Komentarz nie może być pusty.");
+            return View(comment);
+        }
+
+        comment.Content = content;
+        comment.wasEdited = true;
+
+        _context.Comments.Update(comment);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("Details", new { id = comment.PostId });
+    }
+
+
+    private bool TeamPostExists(int id)
+    {
+        return _context.TeamPosts.Any(e => e.Id == id);
     }
 
 

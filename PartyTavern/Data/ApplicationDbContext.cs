@@ -17,6 +17,9 @@ namespace PartyTavern.Data
         public DbSet<TeamPost> TeamPosts { get; set; }
         //Dodanie DbSet dla modelu TeamMember
         public DbSet<TeamMember> TeamMembers { get; set; }
+        //Dodanie DbSet dla modelu Comment
+        public DbSet<Comment> Comments { get; set; }
+        //Dodanie DbSet dla modelu GameProposal
         public DbSet<GameProposal> GameProposals { get; set; }
 
 

@@ -34,5 +34,7 @@ namespace PartyTavern.Models
 
         // Powiązanie z członkami drużyny
         public ICollection<TeamMember> TeamMembers { get; set; } = new List<TeamMember>();
+
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     }
 }

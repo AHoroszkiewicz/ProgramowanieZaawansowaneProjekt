@@ -1,0 +1,16 @@
+﻿@model PartyTavern.Models.Comment
+
+@{
+    ViewData["Title"] = "Edytuj komentarz";
+}
+
+<h1>Edytuj komentarz</h1>
+
+<form method="post" asp-action="EditComment" asp-route-commentId="@Model.Id">
+    <div class="form-group">
+        <label for="content">Treść komentarza</label>
+        <textarea id="content" name="content" class="form-control" rows="3">@Model.Content</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Zapisz</button>
+    <a asp-action="Details" asp-route-id="@Model.PostId" class="btn btn-secondary">Anuluj</a>
+</form>
